@@ -133,7 +133,7 @@ INFO: WELD-ENV-002001: Weld SE container 15a53dbe-1d2b-44b3-8da8-52ce4714bdfd sh
 
 ## Actual output
 
-The project fails if build with OpenWebBeans.
+The project fails if execute with OpenWebBeans.
 
 ```
 ksm@ksm-7560:~/IdeaProjects/spikes/cdi-config$ mvn -POWB clean package && java -jar ./target/cdi-config-1.0-SNAPSHOT.jar 
@@ -241,4 +241,121 @@ String, WebBeansType:PRODUCERMETHOD, Name:null, API Types:[java.io.Serializable,
         at org.apache.webbeans.config.BeansDeployer.validateInjectionPoints(BeansDeployer.java:1180)
         at org.apache.webbeans.config.BeansDeployer.deploy(BeansDeployer.java:324)
         ... 6 more
+```
+
+## Fix:
+
+@rmannibucau suggested that the problem lays in smallrye-config. I wasn't able to follow his explanation, but the solution is to disable scanning of smallrye-config jar by OWB. This was achieved by creating `src/main/resources/META-INF/openwebbeans/openwebbeans.properties` with the following content:
+
+```properties
+configuration.ordinal=101
+org.apache.webbeans.scanExclusionPaths=smallrye-config-3.11.1.jar
+```
+
+After modification project runs.
+
+```
+ksm@ksm-7560:~/IdeaProjects/spikes/cdi-config$ mvn -POWB clean package && java -jar ./target/cdi-config-1.0-SNAPSHOT.jar 
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------< me.noip.ksmigord.spikes:cdi-config >-----------------
+[INFO] Building cdi-config 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ cdi-config ---
+[INFO] Deleting /home/ksm/IdeaProjects/spikes/cdi-config/target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ cdi-config ---
+[INFO] Copying 3 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ cdi-config ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 2 source files with javac [debug target 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ cdi-config ---
+[INFO] skip non existing resourceDirectory /home/ksm/IdeaProjects/spikes/cdi-config/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ cdi-config ---
+[INFO] Changes detected - recompiling the module! :dependency
+[INFO] 
+[INFO] --- surefire:3.2.2:test (default-test) @ cdi-config ---
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ cdi-config ---
+[INFO] Building jar: /home/ksm/IdeaProjects/spikes/cdi-config/target/cdi-config-1.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- dependency:3.6.1:copy-dependencies (default) @ cdi-config ---
+[INFO] Copying jakarta.enterprise.cdi-api-4.0.1.jar to /home/ksm/IdeaProjects/spikes/cdi-config/target/lib/jakarta.enterprise.cdi-api-4.0.1.jar
+[INFO] Copying jakarta.inject-api-2.0.1.jar to /home/ksm/IdeaProjects/spikes/cdi-config/target/lib/jakarta.inject-api-2.0.1.jar
+[INFO] Copying jakarta.annotation-api-2.1.1.jar to /home/ksm/IdeaProjects/spikes/cdi-config/target/lib/jakarta.annotation-api-2.1.1.jar
+[INFO] Copying jakarta.interceptor-api-2.1.0.jar to /home/ksm/IdeaProjects/spikes/cdi-config/target/lib/jakarta.interceptor-api-2.1.0.jar
+[INFO] Copying microprofile-config-api-3.0.3.jar to /home/ksm/IdeaProjects/spikes/cdi-config/target/lib/microprofile-config-api-3.0.3.jar
+[INFO] Copying smallrye-config-3.11.1.jar to /home/ksm/IdeaProjects/spikes/cdi-config/target/lib/smallrye-config-3.11.1.jar
+[INFO] Copying smallrye-config-core-3.11.1.jar to /home/ksm/IdeaProjects/spikes/cdi-config/target/lib/smallrye-config-core-3.11.1.jar
+[INFO] Copying smallrye-common-annotation-2.9.0.jar to /home/ksm/IdeaProjects/spikes/cdi-config/target/lib/smallrye-common-annotation-2.9.0.jar
+[INFO] Copying smallrye-common-expression-2.9.0.jar to /home/ksm/IdeaProjects/spikes/cdi-config/target/lib/smallrye-common-expression-2.9.0.jar
+[INFO] Copying smallrye-common-function-2.9.0.jar to /home/ksm/IdeaProjects/spikes/cdi-config/target/lib/smallrye-common-function-2.9.0.jar
+[INFO] Copying smallrye-common-constraint-2.9.0.jar to /home/ksm/IdeaProjects/spikes/cdi-config/target/lib/smallrye-common-constraint-2.9.0.jar
+[INFO] Copying smallrye-common-classloader-2.9.0.jar to /home/ksm/IdeaProjects/spikes/cdi-config/target/lib/smallrye-common-classloader-2.9.0.jar
+[INFO] Copying asm-9.7.1.jar to /home/ksm/IdeaProjects/spikes/cdi-config/target/lib/asm-9.7.1.jar
+[INFO] Copying smallrye-config-common-3.11.1.jar to /home/ksm/IdeaProjects/spikes/cdi-config/target/lib/smallrye-config-common-3.11.1.jar
+[INFO] Copying jboss-logging-3.6.1.Final.jar to /home/ksm/IdeaProjects/spikes/cdi-config/target/lib/jboss-logging-3.6.1.Final.jar
+[INFO] Copying openwebbeans-se-4.0.3.jar to /home/ksm/IdeaProjects/spikes/cdi-config/target/lib/openwebbeans-se-4.0.3.jar
+[INFO] Copying openwebbeans-impl-4.0.3.jar to /home/ksm/IdeaProjects/spikes/cdi-config/target/lib/openwebbeans-impl-4.0.3.jar
+[INFO] Copying openwebbeans-spi-4.0.3.jar to /home/ksm/IdeaProjects/spikes/cdi-config/target/lib/openwebbeans-spi-4.0.3.jar
+[INFO] Copying xbean-finder-shaded-4.26.jar to /home/ksm/IdeaProjects/spikes/cdi-config/target/lib/xbean-finder-shaded-4.26.jar
+[INFO] Copying xbean-asm9-shaded-4.26.jar to /home/ksm/IdeaProjects/spikes/cdi-config/target/lib/xbean-asm9-shaded-4.26.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.390 s
+[INFO] Finished at: 2025-02-03T13:41:57+01:00
+[INFO] ------------------------------------------------------------------------
+lut 03, 2025 1:41:57 PM org.apache.webbeans.lifecycle.AbstractLifeCycle bootstrapApplication
+INFO: OpenWebBeans Container is starting...
+lut 03, 2025 1:41:57 PM org.apache.webbeans.corespi.scanner.AbstractMetaDataDiscovery addWebBeansXmlLocation
+INFO: added beans archive URL: jar:file:/home/ksm/IdeaProjects/spikes/cdi-config/target/cdi-config-1.0-SNAPSHOT.jar!/META-INF/beans.xml
+lut 03, 2025 1:41:57 PM org.apache.webbeans.corespi.scanner.AbstractMetaDataDiscovery addWebBeansXmlLocation
+INFO: added beans archive URL: jar:file:/home/ksm/IdeaProjects/spikes/cdi-config/target/lib/smallrye-common-constraint-2.9.0.jar!/
+lut 03, 2025 1:41:57 PM org.apache.webbeans.corespi.scanner.AbstractMetaDataDiscovery addWebBeansXmlLocation
+INFO: added beans archive URL: jar:file:/home/ksm/IdeaProjects/spikes/cdi-config/target/lib/asm-9.7.1.jar!/
+lut 03, 2025 1:41:57 PM org.apache.webbeans.corespi.scanner.AbstractMetaDataDiscovery addWebBeansXmlLocation
+INFO: added beans archive URL: jar:file:/home/ksm/IdeaProjects/spikes/cdi-config/target/lib/openwebbeans-se-4.0.3.jar!/
+lut 03, 2025 1:41:57 PM org.apache.webbeans.corespi.scanner.AbstractMetaDataDiscovery addWebBeansXmlLocation
+INFO: added beans archive URL: jar:file:/home/ksm/IdeaProjects/spikes/cdi-config/target/lib/jakarta.inject-api-2.0.1.jar!/
+lut 03, 2025 1:41:57 PM org.apache.webbeans.corespi.scanner.AbstractMetaDataDiscovery addWebBeansXmlLocation
+INFO: added beans archive URL: jar:file:/home/ksm/IdeaProjects/spikes/cdi-config/target/lib/xbean-finder-shaded-4.26.jar!/
+lut 03, 2025 1:41:57 PM org.apache.webbeans.corespi.scanner.AbstractMetaDataDiscovery addWebBeansXmlLocation
+INFO: added beans archive URL: jar:file:/home/ksm/IdeaProjects/spikes/cdi-config/target/lib/jakarta.interceptor-api-2.1.0.jar!/
+lut 03, 2025 1:41:57 PM org.apache.webbeans.corespi.scanner.AbstractMetaDataDiscovery addWebBeansXmlLocation
+INFO: added beans archive URL: jar:file:/home/ksm/IdeaProjects/spikes/cdi-config/target/lib/xbean-asm9-shaded-4.26.jar!/
+lut 03, 2025 1:41:57 PM org.apache.webbeans.corespi.scanner.AbstractMetaDataDiscovery addWebBeansXmlLocation
+INFO: added beans archive URL: jar:file:/home/ksm/IdeaProjects/spikes/cdi-config/target/lib/smallrye-common-annotation-2.9.0.jar!/
+lut 03, 2025 1:41:57 PM org.apache.webbeans.corespi.scanner.AbstractMetaDataDiscovery addWebBeansXmlLocation
+INFO: added beans archive URL: jar:file:/home/ksm/IdeaProjects/spikes/cdi-config/target/lib/smallrye-common-function-2.9.0.jar!/
+lut 03, 2025 1:41:57 PM org.apache.webbeans.corespi.scanner.AbstractMetaDataDiscovery addWebBeansXmlLocation
+INFO: added beans archive URL: jar:file:/home/ksm/IdeaProjects/spikes/cdi-config/target/lib/smallrye-config-core-3.11.1.jar!/
+lut 03, 2025 1:41:57 PM org.apache.webbeans.corespi.scanner.AbstractMetaDataDiscovery addWebBeansXmlLocation
+INFO: added beans archive URL: jar:file:/home/ksm/IdeaProjects/spikes/cdi-config/target/lib/jakarta.annotation-api-2.1.1.jar!/
+lut 03, 2025 1:41:57 PM org.apache.webbeans.corespi.scanner.AbstractMetaDataDiscovery addWebBeansXmlLocation
+INFO: added beans archive URL: jar:file:/home/ksm/IdeaProjects/spikes/cdi-config/target/lib/openwebbeans-spi-4.0.3.jar!/
+lut 03, 2025 1:41:57 PM org.apache.webbeans.corespi.scanner.AbstractMetaDataDiscovery addWebBeansXmlLocation
+INFO: added beans archive URL: jar:file:/home/ksm/IdeaProjects/spikes/cdi-config/target/lib/microprofile-config-api-3.0.3.jar!/
+lut 03, 2025 1:41:57 PM org.apache.webbeans.corespi.scanner.AbstractMetaDataDiscovery addWebBeansXmlLocation
+INFO: added beans archive URL: jar:file:/home/ksm/IdeaProjects/spikes/cdi-config/target/lib/jboss-logging-3.6.1.Final.jar!/
+lut 03, 2025 1:41:57 PM org.apache.webbeans.corespi.scanner.AbstractMetaDataDiscovery addWebBeansXmlLocation
+INFO: added beans archive URL: jar:file:/home/ksm/IdeaProjects/spikes/cdi-config/target/lib/smallrye-config-common-3.11.1.jar!/
+lut 03, 2025 1:41:57 PM org.apache.webbeans.corespi.scanner.AbstractMetaDataDiscovery addWebBeansXmlLocation
+INFO: added beans archive URL: jar:file:/home/ksm/IdeaProjects/spikes/cdi-config/target/lib/smallrye-common-classloader-2.9.0.jar!/
+lut 03, 2025 1:41:57 PM org.apache.webbeans.corespi.scanner.AbstractMetaDataDiscovery addWebBeansXmlLocation
+INFO: added beans archive URL: jar:file:/home/ksm/IdeaProjects/spikes/cdi-config/target/lib/smallrye-common-expression-2.9.0.jar!/
+lut 03, 2025 1:41:57 PM org.apache.webbeans.corespi.scanner.AbstractMetaDataDiscovery addWebBeansXmlLocation
+INFO: added beans archive URL: jar:file:/home/ksm/IdeaProjects/spikes/cdi-config/target/lib/jakarta.enterprise.cdi-api-4.0.1.jar!/
+lut 03, 2025 1:41:57 PM org.apache.webbeans.corespi.scanner.AbstractMetaDataDiscovery addWebBeansXmlLocation
+INFO: added beans archive URL: jar:file:/home/ksm/IdeaProjects/spikes/cdi-config/target/lib/openwebbeans-impl-4.0.3.jar!/
+lut 03, 2025 1:41:57 PM org.apache.webbeans.config.BeansDeployer validateInjectionPoints
+INFO: All injection points were validated successfully.
+lut 03, 2025 1:41:57 PM org.apache.webbeans.lifecycle.AbstractLifeCycle bootstrapApplication
+INFO: OpenWebBeans Container has started, it took [236] ms.
+Hello World.
 ```
